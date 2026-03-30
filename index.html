@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ตอบดี ๆ ไม่งั้นฟ้องตำรวจนะ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Kanit', sans-serif;
+            /* เปลี่ยนพื้นหลังเป็นไล่สีชมพูละมุน */
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            color: #2d3436;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* เอฟเฟกต์หัวใจลอยพื้นหลัง */
+        .bg-hearts {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .heart {
+            position: absolute;
+            color: rgba(255, 71, 87, 0.2);
+            font-size: 24px;
+            bottom: -50px;
+            animation: floatUp 8s linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg) scale(1.5); opacity: 0; }
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .active { display: flex; animation: fadeIn 0.5s ease-in-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* สไตล์ Glassmorphism สวยๆ */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 2.5rem 2rem;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(255, 71, 87, 0.15);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        h1 { color: #ff4757; font-size: 2.2rem; margin-bottom: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
+        h2 { color: #ff4757; font-size: 1.4rem; margin-top: 0; }
+        p { line-height: 1.6; color: #636e72; font-size: 1.05rem; }
+        
+        .tnc-box {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            height: 180px;
+            overflow-y: auto;
+            text-align: left;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: #555;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+        }
+        
+        .tnc-box p { margin: 5px 0; font-size: 0.85rem; }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #ff4757;
+            font-weight: 600;
+        }
+        
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: #ff4757; }
+
+        .question { 
+            font-size: 1.3rem; 
+            margin: 20px 0 40px; 
+            min-height: 3.5em;
+            color: #2d3436;
+            font-weight: 600;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            width: 100%;
+            min-height: 120px;
+        }
+        
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.05rem;
+            font-family: 'Kanit', sans-serif;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .primary-btn { 
+            background: linear-gradient(45deg, #ff4757, #ff6b81); 
+            color: white; 
+            width: 100%; 
+            box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3); 
+        }
+        .primary-btn:disabled { 
+            background: #dfe6e9; color: #b2bec3; box-shadow: none; cursor: not-allowed; 
+        }
+        
+        /* ปุ่มใช่ ให้มีแสงกระเพื่อม (Pulse) ตลอดเวลา */
+        .yes-style { 
+            background: linear-gradient(45deg, #ff4757, #ff6b81) !important; 
+            color: white !important; 
+            box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3); 
+            z-index: 10; 
+            animation: pulseBtn 2s infinite;
+        }
+        
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.5); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+        }
+
+        .no-style { 
+            background: #f1f2f6; 
+            color: #747d8c; 
+            position: relative; 
+            z-index: 5; 
+            border: 1px solid #dfe6e9;
+        }
+
+        .spotify-link {
+            color: white;
+            background: #1DB954;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(29, 185, 84, 0.3);
+            transition: 0.3s;
+        }
+        .spotify-link:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(29, 185, 84, 0.4); }
+
+        .shake { animation: shake 0.3s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%, 75% { transform: translateX(8px); }
+            50% { transform: translateX(-8px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-hearts" id="heart-container"></div>
+
+<div class="screen active" id="intro-screen">
+    <div class="card">
+        <h1>Are you ready? 💘</h1>
+        <p>ถ้าพร้อมแล้วกดเริ่มเล่นได้เลยนะ<br>ไม่เล่นงอล</p>
+        <button class="primary-btn" onclick="showScreen('tnc-screen')">โกๆๆๆ</button>
+    </div>
+</div>
+
+<div class="screen" id="tnc-screen">
+    <div class="card" style="padding: 1.5rem;">
+        <h2>สัญญาปีศาจ</h2>
+        <div class="tnc-box" id="tnc-content"></div>
+        <label class="checkbox-container">
+            <input type="checkbox" id="agree-check" onchange="toggleStartBtn()"> 
+            <span>ยอมจำนนทุกเงื่อนไขแต่โดยดี 💖</span>
+        </label>
+        <button class="primary-btn" id="start-game-btn" onclick="startGame()" disabled>เข้าสู่ด่านวัดใจ</button>
+    </div>
+</div>
+
+<div class="screen" id="game-screen">
+    <div class="card" id="game-box">
+        <h2 id="level-title">Level 1</h2>
+        <p class="question" id="q-text">กำลังโหลดความรัก...</p>
+        <div class="btn-container" id="btn-area">
+            <button id="yes-btn" class="yes-style" onclick="handleYes()">ใช่</button>
+            <button id="no-btn" class="no-style" onclick="handleNo()">ไม่</button>
+        </div>
+    </div>
+</div>
+
+<div class="screen" id="result-screen">
+    <div class="card" id="result-box"></div>
+</div>
+
+<script>
+    // สร้างหัวใจลอยพื้นหลัง 20 ดวง
+    const heartContainer = document.getElementById('heart-container');
+    const heartEmojis = ['💖', '💕', '💘', '✨', '🌸'];
+    for(let i = 0; i < 20; i++) {
+        let heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerText = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+        heart.style.animationDelay = Math.random() * 5 + 's';
+        heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+        heartContainer.appendChild(heart);
+    }
+
+    const tncContent = document.getElementById('tnc-content');
+    let tncHTML = "<p><strong>ข้อที่ 1:</strong> ผู้เล่นต้องยอมรับว่าคนส่งเว็บนี้น่ารักและหล่อที่สุดในโลก</p>";
+    tncHTML += "<p><strong>ข้อที่ 2:</strong> ห้ามเถียง ห้ามบ่น ห้ามกดหนี และต้องคิดถึงกันทุกวัน</p>";
+    for(let i = 3; i <= 99; i++) {
+        tncHTML += `<p><strong>ข้อที่ ${i}:</strong> ยืนยันตามข้อ 1 ว่าพี่หล่อและน่ารักมาก จบนะ</p>`;
+    }
+    tncHTML += "<p><strong>ข้อที่ 100:</strong> หากทำผิดกฎข้อใดข้อหนึ่ง จะถูกลงโทษด้วยการเลี้ยงชาบู 10 ล้านปี </p>";
+    tncContent.innerHTML = tncHTML;
+
+    function toggleStartBtn() {
+        document.getElementById('start-game-btn').disabled = !document.getElementById('agree-check').checked;
+    }
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function startGame() {
+        showScreen('game-screen');
+        loadLevel();
+    }
+
+    const questions = [
+        { q: "พร้อมจะรับความจริงที่ว่าพี่เฟี้ยวกว่าเราหรือยัง?", y: "พร้อมจ้า 🥺", n: "ยังอะ", type: "dodge" },
+        { q: "ใครหน้าตาดีกว่ากัน?", y: "นิค่อน", n: "เดียร์", type: "force_agree" },
+        { q: "เวลาพี่ทักไป เดียร์ต้องทำไง?", y: "ตอบทันที", n: "ดอง 1 ล้านชั่วโมง", type: "shrink_grow" },
+        { q: "พี่หล่อมั้ย", y: "หล่อที่สุดในปฐพี", n: "หลงตัวเองเนาะ", type: "swap_fast" },
+        { q: "เลี้ยงชาบูหน่อยจิ", y: "อื้ออ!!", n: "จ่ายเองสิ", type: "fake_error" },
+        { q: "คิดว่าพี่เป็นคนยังไง?", y: "แสนดีดั่งนางฟ้า", n: "ดื้อสุดๆ", type: "clone_red" },
+        { q: "เวลาพี่เล่นมุกแป้ก เดียร์ต้องทำไง?", y: "ขำให้ฟันร่วงไปเลย", n: "มองบนเบาๆ", type: "runaway" },
+        { q: "ถ้าเดียร์บ่นว่าอ้วน แปลว่าอะไร?", y: "แปลว่าผอมและน่ารักมาก", n: "ก็อ้วนจริงๆแหละ", type: "disappear" },
+        { q: "น่ารักขนาดนี้ ห้ามทิ้งกันนะ ", y: "ไม่มีวันทิ้งหรอก!", n: "เดี๋ยวดูหน้างาน", type: "guilt_trip" },
+        { q: "สรุปแล้ว... รักพี่ไหม? ❤️", y: "รักกกกกกกกที่สุดดด", n: "ไม่รัก", type: "final_boss" }
+    ];
+
+    let currentLevel = 0;
+    let yesScale = 1;
+    let noScale = 1;
+
+    const yesBtn = document.getElementById('yes-btn');
+    const noBtn = document.getElementById('no-btn');
+    const qText = document.getElementById('q-text');
+    const container = document.getElementById('btn-area');
+    const gameBox = document.getElementById('game-box');
+
+    function loadLevel() {
+        if (currentLevel >= questions.length) return;
+        
+        const qData = questions[currentLevel];
+        document.getElementById('level-title').innerText = `ด่านวัดใจที่ ${currentLevel + 1} / 10`;
+        qText.innerText = qData.q;
+        yesBtn.innerText = qData.y;
+        noBtn.innerText = qData.n;
+        
+        yesScale = 1; noScale = 1;
+        yesBtn.style = ""; noBtn.style = "";
+        yesBtn.className = "yes-style";
+        noBtn.className = "no-style";
+        container.style.flexDirection = "row";
+        noBtn.disabled = false;
+        
+        if (qData.type === 'final_boss') {
+            yesBtn.style.transform = "scale(1.4)";
+            noBtn.style.transform = "scale(0.3)";
+            noBtn.style.opacity = "0.5";
+            noBtn.onclick = (e) => e.preventDefault();
+        } else {
+            noBtn.onclick = handleNo;
+        }
+    }
+
+    function handleYes() {
+        currentLevel++;
+        if (currentLevel < questions.length) loadLevel();
+        else showFinal();
+    }
+
+    function handleNo(e) {
+        if(e) e.preventDefault();
+        const qData = questions[currentLevel];
+
+        switch(qData.type) {
+            case 'force_agree':
+                noBtn.innerText = "ยอมรับก็ได้ นิค่อนหล่อกว่า!";
+                noBtn.className = "yes-style";
+                noBtn.style.transform = "scale(1.1)";
+                noBtn.onclick = handleYes;
+                break;
+            case 'shrink_grow':
+                yesScale += 0.3; noScale -= 0.2;
+                yesBtn.style.transform = `scale(${yesScale})`;
+                noBtn.style.transform = `scale(${noScale})`;
+                if(noScale <= 0) noBtn.style.display = 'none';
+                break;
+            case 'fake_error':
+                alert("💖 System Error: หัวใจสั่งการว่าให้เลี้ยงชาบูเท่านั้น ไม่อนุญาตให้ตอบอย่างอื่น!");
+                break;
+            case 'clone_red':
+                noBtn.innerText = qData.y;
+                noBtn.className = "yes-style";
+                noBtn.onclick = handleYes;
+                break;
+            case 'guilt_trip':
+                noBtn.innerText = "ใจร้ายจัง ร้องไห้แล้วนะ 🥺";
+                noBtn.disabled = true;
+                noBtn.style.opacity = "0.5";
+                break;
+        }
+    }
+
+    const activeDefense = (e) => {
+        const qData = questions[currentLevel];
+        if (!qData) return;
+
+        if (qData.type === 'dodge' || qData.type === 'runaway') {
+            e.preventDefault();
+            const x = Math.random() * (container.offsetWidth - noBtn.offsetWidth) - ((container.offsetWidth - noBtn.offsetWidth)/2);
+            const y = (Math.random() - 0.5) * 120;
+            noBtn.style.position = "absolute";
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+        else if (qData.type === 'swap_fast') {
+            e.preventDefault();
+            container.style.flexDirection = container.style.flexDirection === 'row-reverse' ? 'row' : 'row-reverse';
+            gameBox.classList.add('shake');
+            setTimeout(() => gameBox.classList.remove('shake'), 300);
+        }
+        else if (qData.type === 'disappear') {
+            e.preventDefault();
+            noBtn.style.opacity = "0";
+            noBtn.style.pointerEvents = "none";
+        }
+    };
+
+    noBtn.addEventListener('touchstart', activeDefense, {passive: false});
+    noBtn.addEventListener('mouseover', activeDefense);
+
+    function showFinal() {
+        showScreen('result-screen');
+        const resultBox = document.getElementById('result-box');
+        resultBox.innerHTML = `<h2 style="font-size:3rem">🤔</h2><p style="font-size:1.2rem; font-weight:bold;">เช็คคำตอบแปปป </p>`;
+        
+        setTimeout(() => {
+            resultBox.innerHTML = `
+                <h2 style="font-size:3.5rem; margin:0;">🎊</h2>
+                <h2 style="font-size: 1.8rem; margin-top: 10px;">ขี้เกียจคิดละ เอางี้เลยละกัน</h2>
+                <p>เค้ามีไรให้เธอลองเปิดด้วย<br>กดจิ ไม่ใช่ไวรัสนะ</p>
+                <a href="https://open.spotify.com/playlist/2iR3ygWeKZWc57X40dq6li?si=e40f468770d84e0e&pt=7b9b0a201573a6f21f35c31330cca095" class="spotify-link">เปิดเลยๆๆๆๆๆๆ</a>
+            `;
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
